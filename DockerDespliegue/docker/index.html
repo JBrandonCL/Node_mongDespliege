@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario</title>
+    <style>
+        body{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<h1>Formulario 3</h1>
+<form id="nameForm">
+    <label for="name">Nombre a guardar:</label>
+    <input type="text" id="nameInput" name="name" required>
+    <button type="submit">Guardar</button>
+</form>
+
+<h2>Nombres Guardados:</h2>
+<ul id="namesList"></ul>
+
+<script>
+    function mostrarNombres() {
+        fetch('http://localhost:3000/api/getNames')
+            .then(response => response.json())
+            .then(names => {
+                const namesList = document.getElementById('namesList');
+                namesList.innerHTML = '';
+                names.forEach(nameObj => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = nameObj.name;
+                    namesList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error('Error al obtener los nombres:', error));
+    }
+
+
+    mostrarNombres();
+
+    const form = document.getElementById('nameForm');
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(form);
+        const name = formData.get('name');
+
+        // Realizar la solicitud POST para guardar el nombre
+        await fetch('http://localhost:3000/api/saveName', {
+            method: 'POST',
+            body: JSON.stringify({ name }), // Enviar el nombre como JSON
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        mostrarNombres();
+        document.getElementById('nameInput').value = '';
+    });
+</script>
+</body>
+</html>
